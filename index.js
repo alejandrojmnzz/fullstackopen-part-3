@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 
 app.use(express.json())
+
 let persons = [
     { 
       "id": 1,
@@ -52,6 +53,12 @@ app.get('/api/persons/:id', (request, response) => {
         return
     }
     response.send(`${person.name}, ${person.number}`)
+})
+
+app.post('/api/persons', (request, response) => {
+    const body = request.body
+    persons.push({...body, "id": Math.floor(Math.random() * 1000000)})
+    console.log(persons)
 })
 
 const PORT = 3001
