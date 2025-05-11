@@ -57,8 +57,14 @@ app.get('/api/persons/:id', (request, response) => {
 
 app.post('/api/persons', (request, response) => {
     const body = request.body
+    if (!body.name || !body.number) {
+        response.status(400).json({"error": "both parameters are required"})
+    }
+    if (persons.find(person => person.name === body.name)) {
+        response.status(403).json({"error": "name must be unique"})
+    }
     persons.push({...body, "id": Math.floor(Math.random() * 1000000)})
-    console.log(persons)
+    response.json(body)
 })
 
 const PORT = 3001
