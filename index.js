@@ -3,6 +3,10 @@ const morgan = require('morgan')
 
 const app = express()
 
+morgan.token('person', function (res, req) {
+    return JSON.stringify(res.body)
+})
+
 app.use(express.json())
 app.use(morgan('tiny'))
 
@@ -58,7 +62,7 @@ app.get('/api/persons/:id', (request, response) => {
     response.send(`${person.name}, ${person.number}`)
 })
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', morgan(':method :url :status - :response-time ms :person'), (request, response) => {
     const body = request.body
     if (!body.name || !body.number) {
         response.status(400).json({"error": "both parameters are required"})
