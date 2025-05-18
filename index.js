@@ -9,6 +9,7 @@ morgan.token('person', function (res, req) {
 
 app.use(express.json())
 app.use(morgan('tiny'))
+app.use(express.static('dist'))
 
 let persons = [
     { 
@@ -34,7 +35,7 @@ let persons = [
 ]
 
 app.get('/api/persons', (request, response) => {
-    response.json(persons)
+    response.send(persons)
 })
 
 app.get('/info', (request, response) => {
