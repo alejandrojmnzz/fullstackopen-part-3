@@ -55,11 +55,16 @@ app.get('/api/persons', (request, response, next) => {
     .catch(error => next(error))
 })
 
-app.get('/info', (request, response) => {
-    response.send(`
-        <p>Phonebook has info for ${persons.length} people</p>
-        <p>${new Date()}</p>
-        `)
+app.get('/info', (request, response, next) => {
+    Person.find({})
+        .then(result => {
+                response.send(`
+                <p>Phonebook has info for ${result.length} people</p>
+                <p>${new Date()}</p>
+                `)
+            })
+        .catch(error => next(error))
+        
         
 })
 
@@ -73,16 +78,14 @@ app.delete('/api/persons/:id', (request, response, next) => {
 
 })
 
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
     const id = request.params.id
-    const person = persons.find(person => person.id === Number(id))
-    if (!person) {
-        response.status(404).json({    
-            error: 'content missing' 
-          })
-        return
-    }
-    response.send(`${person.name}, ${person.number}`)
+    Person.findById(id)
+        .then(result => {
+            response.send(result)
+        })
+        .catch(error => next(error))
+        
 })
 
 app.post('/api/persons', morgan(':method :url :status - :response-time ms :person'), (request, response, next) => {
