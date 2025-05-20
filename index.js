@@ -40,7 +40,6 @@ let persons = [
 
 const errorHandler = (error, request, response, next) => {
     console.error(error.message)
-
     if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
     } 
@@ -98,8 +97,7 @@ app.post('/api/persons', morgan(':method :url :status - :response-time ms :perso
         name: body.name,
         number: body.number
     })
-
-
+    
     if (person.name) {
         person.save().then(result => {
             console.log(`added ${result.name} number ${result.number} to phonebook`)
@@ -109,6 +107,22 @@ app.post('/api/persons', morgan(':method :url :status - :response-time ms :perso
     }
 
     response.json(body)
+})
+
+app.put('/api/persons/:id', (request, response, next) => {
+    const body = request.body
+
+    const person = {
+        name: body.name,
+        number: body.number
+    }
+
+    Person.findByIdAndUpdate(request.params.id, person, {new: true})
+        .then(updatedPerson => {
+            console.log(updatedPerson)
+            response.json(updatedPerson)
+        })
+        .catch(error => next(error))
 })
 
 const PORT = process.env.PORT 
