@@ -1,5 +1,4 @@
 require('dotenv').config()
-const mongoose = require("mongoose")
 
 const Person = require('./models/person')
 
@@ -78,10 +77,21 @@ app.post('/api/persons', morgan(':method :url :status - :response-time ms :perso
     if (!body.name || !body.number) {
         response.status(400).json({"error": "both parameters are required"})
     }
-    if (persons.find(person => person.name === body.name)) {
-        response.status(403).json({"error": "name must be unique"})
+
+
+
+    const person = new Person(  {
+        name: body.name,
+        number: body.number
+    })
+
+
+    if (person.name) {
+        person.save().then(result => {
+            console.log(`added ${result.name} number ${result.number} to phonebook`)
+    })
     }
-    persons.push({...body, "id": Math.floor(Math.random() * 1000000)})
+
     response.json(body)
 })
 
