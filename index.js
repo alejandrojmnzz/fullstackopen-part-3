@@ -1,3 +1,8 @@
+require('dotenv').config()
+const mongoose = require("mongoose")
+
+const Person = require('./models/person')
+
 const express = require('express')
 const morgan = require('morgan')
 
@@ -34,8 +39,13 @@ let persons = [
     }
 ]
 
+
+
 app.get('/api/persons', (request, response) => {
-    response.send(persons)
+    Person.find({}).then(result => {
+        console.log('phonebook:')
+        response.send(result)
+    })
 })
 
 app.get('/info', (request, response) => {
@@ -75,7 +85,23 @@ app.post('/api/persons', morgan(':method :url :status - :response-time ms :perso
     response.json(body)
 })
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
+
+
+
+
+// const person = new Person(  {
+//     name: name,
+//     number: number
+// })
+
+
+// if (person.name) {
+//     person.save().then(result => {
+//         console.log(`added ${result.name} number ${result.number} to phonebook`)
+//         mongoose.connection.close()
+// })
+// }
