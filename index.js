@@ -38,13 +38,22 @@ let persons = [
     }
 ]
 
+const errorHandler = (error, request, response, next) => {
+    console.error(error.message)
 
+    if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+    } 
 
-app.get('/api/persons', (request, response) => {
+  next(error)
+}
+
+app.get('/api/persons', (request, response, next) => {
     Person.find({}).then(result => {
         console.log('phonebook:')
         response.send(result)
     })
+    .catch(error => next(error))
 })
 
 app.get('/info', (request, response) => {
@@ -52,15 +61,17 @@ app.get('/info', (request, response) => {
         <p>Phonebook has info for ${persons.length} people</p>
         <p>${new Date()}</p>
         `)
+        
 })
 
-app.delete('/api/persons/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response, next) => {
     Person.findByIdAndDelete(request.params.id)
         .then(result => {
             response.status(204).end()
 
         })
-         .catch(error => console.log(error))
+        .catch(error => next(error))
+
 })
 
 app.get('/api/persons/:id', (request, response) => {
@@ -75,7 +86,7 @@ app.get('/api/persons/:id', (request, response) => {
     response.send(`${person.name}, ${person.number}`)
 })
 
-app.post('/api/persons', morgan(':method :url :status - :response-time ms :person'), (request, response) => {
+app.post('/api/persons', morgan(':method :url :status - :response-time ms :person'), (request, response, next) => {
     const body = request.body
     if (!body.name || !body.number) {
         response.status(400).json({"error": "both parameters are required"})
@@ -93,6 +104,8 @@ app.post('/api/persons', morgan(':method :url :status - :response-time ms :perso
         person.save().then(result => {
             console.log(`added ${result.name} number ${result.number} to phonebook`)
     })
+    .catch(error => next(error))
+    
     }
 
     response.json(body)
@@ -103,18 +116,4 @@ app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
 
-
-
-
-// const person = new Person(  {
-//     name: name,
-//     number: number
-// })
-
-
-// if (person.name) {
-//     person.save().then(result => {
-//         console.log(`added ${result.name} number ${result.number} to phonebook`)
-//         mongoose.connection.close()
-// })
-// }
+app.use(errorHandler)
